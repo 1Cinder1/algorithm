@@ -1,7 +1,10 @@
 package com.algorithm.algorithm.merge;
 
+import org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author : zhangxiaobo
@@ -15,72 +18,130 @@ import java.util.Arrays;
 
 public class SortList {
 
-   public static class ListNode {
-      int val;
-      ListNode next;
-      ListNode() {}
-      ListNode(int val) { this.val = val; }
-      ListNode(int val, ListNode next) { this.val = val; this.next = next; }
-  }
+
   public static void main(String[] args) {
-    ListNode headNode = new ListNode(1);
-//    headNode.next = new ListNode(2);
-//    headNode.next.next = new ListNode(1);
-//    headNode.next.next.next = new ListNode(3);
-    int[] toArray = listToArray(headNode);
-    System.out.println(Arrays.toString(toArray));
-    int end = toArray.length;
-    int[] result = new int[end];
-    mergeSort(toArray,0,end-1,result);
-//    arrayToList(result);
-    System.out.println(Arrays.toString(result));
-  }
-  public static int[] listToArray(ListNode head) {
-    ArrayList<Integer> result = new ArrayList<>();
-    while (head !=null){
-      result.add(head.val);
-      head = head.next;
+    int[] nums = {4,19,14,5,-3,1,8,5,11,15};
+//    int[] nums = {-1,5,3,4,0};
+    ListNode head = new ListNode();
+    ListNode temp = new ListNode();
+    head.next = temp;
+    for (int i = 0; i < nums.length; i++) {
+      ListNode listNode = new ListNode();
+      temp.next = listNode;
+      temp = listNode;
+      temp.val = nums[i];
     }
-    int[] result2 = result.stream().mapToInt(Integer::valueOf).toArray();
-    return result2;
-  }
-  public static ListNode arrayToList(int[] array) {
-    ListNode headNode = new ListNode();
-    ListNode nextNode = new ListNode(array[0]);
-    headNode.next = nextNode;
-    for (int i = 1; i < array.length; i++) {
-      nextNode.next = new ListNode(array[i]);
-      nextNode = nextNode.next;
+    Solution solution = new Solution();
+    ListNode listNode = solution.sortList(head.next.next);
+    while (listNode != null){
+      System.out.println(listNode.val);
+      listNode = listNode.next;
     }
-    return headNode;
   }
+  /**
+   * @author Zhangxiaobo
+   * @description use bottom-to-up merge-sort to sort the ListNode,step from 1 to 2 4 8....
+   * @createTime  2023/8/26 23:14
+   * @return
+   **/
+  static class Solution {
+    public ListNode sortList(ListNode head) {
+      int step = 1;
 
-
-  public static void mergeSort(int[] arr,int start,int end,int[] result) {
-    if (start == end){
-      if (arr.length == 1){
-        result[0] = arr[0];
+      int length = 0;
+      ListNode node = head;
+      while (node != null) {
+        length++;
+        node = node.next;
       }
-     return;
+      ListNode head2 = null;
+      if (length == 1){
+        head2 = head;
+      }
+      node = head;
+      while (step < length) {
+        while (head != null){
+          ListNode temp = head;
+          for (int i = 0; i < step; i+=1) {
+            if (head != null){
+              head = head.next;
+            }
+          }
+          head2 = mergeSort(temp,head,step-1);
+          for (int i = 0; i < step; i+=1) {
+            if (head != null){
+              head = head.next;
+            }
+          }
+        }
+        step = step*2;
+        head = node;
+      }
+      return head2;
     }
-    int length = end - start;
-    int mid = (length /2) + start;
-    int start1 = start,end1 = mid;
-    int start2 = mid+1,end2 = end;
-    mergeSort(arr,start1,end1,result);
-    mergeSort(arr,start2,end2,result);
-    int i = start;
-    while (start1 <= end1 && start2 <=end2){
-      result[i++] = arr[start1] < arr[start2] ? arr[start1++] : arr[start2++];
+
+    public ListNode mergeSort(ListNode head1,ListNode head2,int loop){
+      if (head2 == null){
+        return head1;
+      }
+      ListNode listNode = new ListNode();
+      ListNode tt = new ListNode();
+      listNode.next = tt;
+      int left = loop,right = loop;
+      ListNode head = head1;
+      while (left >-1 && right >-1 && head1 != null && head2 != null){
+        ListNode temp = new ListNode();
+        tt.next = temp;
+        tt = temp;
+        if (head1.val < head2.val){
+          tt.val = head1.val;
+          head1 = head1.next;
+          left--;
+        }else {
+          tt.val = head2.val;
+          head2 = head2.next;
+          right--;
+        }
+      }
+      listNode = listNode.next;
+      while (left>-1 && head1 != null){
+        ListNode temp = new ListNode();
+        tt.next = temp;
+        tt = temp;
+        tt.val = head1.val;
+        if (head1.next != null){
+          head1 = head1.next;
+        }else {
+          break;
+        }
+        left--;
+      }
+      while (right>-1 && head2 != null){
+        ListNode temp = new ListNode();
+        tt.next = temp;
+        tt = temp;
+        tt.val = head2.val;
+        if (head2.next != null){
+          head2 = head2.next;
+        }else {
+          head2 = null;
+          break;
+        }
+        right--;
+      }
+      head.val = listNode.next.val;
+      head.next = listNode.next.next;
+      tt.next = head2;
+      return head;
     }
-    while (start1 <= end1){
-      result[i++] = arr[start1++];
-    }
-    while (start2 <=end2){
-      result[i++] = arr[start2++];
-    }
-    for (int j = start;j<=end;j++){
-      arr[j] = result[j];
-    }
+
+
+  }
+  static class ListNode {
+    int val;
+    ListNode next;
+    ListNode() {}
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
   }
 }
