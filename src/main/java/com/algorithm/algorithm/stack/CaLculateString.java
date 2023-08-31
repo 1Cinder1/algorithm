@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 public class CaLculateString {
   public static void main(String[] args) {
     Solution solution = new Solution();
-//    String s = "1-1+1";
-    String s = "1*2-3/4+5*6-7*8+9/10";
+    String s = "-1";
+//    String s = "1*2-3/4+5*6-7*8+9/10";
     System.out.println(solution.calculate(s));
   }
   static class Solution {
